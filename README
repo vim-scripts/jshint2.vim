@@ -2,9 +2,10 @@ This is a mirror of http://www.vim.org/scripts/script.php?script_id=4682
 
 See https://github.com/Shutnik/jshint2.vim
 
-Features:
+Features
 * Linting whole file or selected lines without saving to disk.
-* Finding configuration files inside linting file path on upper in directories.
-* Optionally opening list of linting errors with useful shortcuts.
+* Finding configuration files inside linting file path or upper in directories.
 * Setting lint flags from command line with autocompletion.
-* Autovalidation files after reading or saving.
+* Optionally opening list of linting errors with useful shortcuts.
+* Optionally validating files after reading or saving.
+* Working on Linux, Windows and OS X.

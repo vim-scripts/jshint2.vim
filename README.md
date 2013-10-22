@@ -2,21 +2,22 @@
 
 Lightweight, customizable and functional Vim plugin for [JSHint](http://jshint.com/) integration.
 
-![jshint2.vim](https://raw.github.com/Shutnik/jshint2.vim/master/screenshot.png)
+![jshint2.vim](https://dl.dropbox.com/s/ab95l1gnbub8m04/jshint2.vim.png)
 
 ## Features
 
 * Linting whole file or selected lines without saving to disk.
-* Finding configuration files inside linting file path on upper in directories.
-* Optionally opening list of linting errors with useful shortcuts.
+* Finding configuration files inside linting file path or upper in directories.
 * Setting lint flags from command line with autocompletion.
-* Autovalidation files after reading or saving.
+* Optionally opening list of linting errors with useful shortcuts.
+* Optionally validating files after reading or saving.
+* Working on Linux, Windows and OS X.
 
 ## Installation
 
-1. [Install Node.js](https://github.com/joyent/node/wiki/Installing-Node.js-via-package-manager).
-2. [Install JSHint](http://jshint.com/install/), globally [prefered](#configuration).
-3. Place [.jshintrc](http://www.jshint.com/docs/#config) into your `~`, optionally place it into your project directory.
+1. [Install Node.js](http://nodejs.org/download/).
+2. [Install JSHint](http://jshint.com/install/), globally [preferred](#configuration).
+3. Place [.jshintrc](http://www.jshint.com/docs/options/) into your `~`, optionally place it into your project directory.
 4. [Install Pathogen](https://github.com/tpope/vim-pathogen#installation), necessarily check [super-minimal example](https://github.com/tpope/vim-pathogen#runtime-path-manipulation).
 5. Clone plugin into your `~/.vim/bundle/jshint2.vim/`.
 6. ???
@@ -71,6 +72,12 @@ Do not use colored messages:
 let jshint2_color = 0
 ```
 
+Hide error codes in error list (if you don't use error ignoring or error codes confuses you):
+
+```vim
+let jshint2_error = 0
+```
+
 ## Tips
 
 Quick lint mapping:
@@ -84,4 +91,4 @@ cnoremap <F1> JSHint
 
 ## Author & License
 
-Written by [Nikolay S. Frantsev](http://frantsev.ru/) under [GPL3 License](http://www.gnu.org/licenses/gpl.html).
+Written by [Nikolay S. Frantsev](http://frantsev.ru/) under [GNU GPL 3 License](http://www.gnu.org/licenses/gpl.html).
