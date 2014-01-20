@@ -11,7 +11,7 @@ Lightweight, customizable and functional Vim plugin for [JSHint](http://jshint.c
 * Setting lint flags from command line with autocompletion.
 * Optionally opening list of linting errors with useful shortcuts.
 * Optionally validating files after reading or saving.
-* Working on Linux, Windows and OS X.
+* Working on Linux, Windows (with JSHint 2.1.5 and newer) and OS X.
 
 ## Installation
 
@@ -60,6 +60,11 @@ Lint JavaScript files after saving it:
 let jshint2_save = 1
 ```
 
+Do not automatically close orphaned error lists:
+```vim
+let jshint2_close = 0
+```
+
 Skip lint confirmation for non JavaScript files:
 
 ```vim
@@ -76,6 +81,12 @@ Hide error codes in error list (if you don't use error ignoring or error codes c
 
 ```vim
 let jshint2_error = 0
+```
+
+Set default height of error list:
+
+```vim
+let jshint2_height = 20
 ```
 
 ## Tips

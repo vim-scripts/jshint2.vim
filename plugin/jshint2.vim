@@ -39,6 +39,11 @@ if !exists('g:jshint2_save')
 	let g:jshint2_save = 0
 endif
 
+" define close orphaned error lists variable
+if !exists('g:jshint2_close')
+	let g:jshint2_close = 1
+endif
+
 " define show confirmation variable
 if !exists('g:jshint2_confirm')
 	let g:jshint2_confirm = 1
@@ -52,6 +57,11 @@ endif
 " define show error number variable
 if !exists('g:jshint2_error')
 	let g:jshint2_error = 1
+endif
+
+" define error list height variable
+if !exists('g:jshint2_height')
+	let g:jshint2_height = 10
 endif
 
 " define completion dictionary
@@ -177,7 +187,8 @@ function s:Command()
 	endwhile
 
 	" return full shell command
-	return g:jshint2_command.(l:found ? ' --config='.shellescape(l:config) : '').' '.g:jshint2_arguments.' -'
+	return g:jshint2_command.(l:found ? ' --config='.shellescape(l:config) : '').' '.g:jshint2_arguments.
+		\ ' '.(has('win32') || has('win64') ? '-' : '/dev/stdin') " https://github.com/Shutnik/jshint2.vim/issues/8
 endfunction
 
 " colorised output
@@ -197,9 +208,9 @@ function s:Echo(type, message)
 endfunction
 
 " lint command
-function s:Lint(start, stop, show, ...)
+function s:Lint(start, stop, show, flags)
 	" filter error list and confirm no javascript buffers
-	if &buftype == 'quickfix' || &filetype != 'javascript' && g:jshint2_confirm &&
+	if &buftype == 'quickfix' || g:jshint2_confirm && !exists('b:jshint2_flags') && &filetype != 'javascript' &&
 			\ confirm('Current file is not JavaScript, lint it anyway?', '&Yes'."\n".'&No', 1, 'Question') != 1
 		return
 	endif
@@ -209,14 +220,14 @@ function s:Lint(start, stop, show, ...)
 
 	" check if shell binary installed
 	if !executable(g:jshint2_command)
-		return s:Echo('Error', 'JSHint is not executable!')
+		return s:Echo('Error', 'JSHint is not executable, check if “'.g:jshint2_command.'” callable from your terminal.')
 	endif
 
 	" save command flags
-	let b:jshint2_flags = a:000
+	let b:jshint2_flags = a:flags
 
 	" save jshint flags
-	let l:flags = len(a:000) ? '//jshint '.join(a:000, ', ') : ''
+	let l:flags = len(a:flags) ? '//jshint '.join(a:flags, ', ') : ''
 
 	" save whole file or selected lines
 	let l:content = insert(getline(a:start, a:stop), l:flags)
@@ -231,7 +242,7 @@ function s:Lint(start, stop, show, ...)
 
 	" check for shell errors
 	if v:shell_error
-		return s:Echo('Error', 'Shell error while executing JSHint!')
+		return s:Echo('Error', 'JSHint returns shell error “'.substitute(l:report, '[\s\n\r]\+$', '', '').'”.')
 	endif
 
 	" save buffer number
@@ -245,18 +256,22 @@ function s:Lint(start, stop, show, ...)
 	" replace location list with new data
 	call setloclist(0, l:matrix, 'r')
 
+	" save ignored errors message
+	let l:ignored = len(filter(copy(a:flags), 'v:val =~ ''^-[EWI][0-9]\{3\}$''')) ? ' Some messages are ignored.' : ''
+
 	" save total number of errors
 	let l:length = len(l:matrix)
 	if l:length
-		call s:Echo('Warning', 'JSHint found '.(l:length == 1 ? '1 error' : l:length.' errors').
-			\ matchstr(l:matrix[-1].text, ' (\d\+% scanned)').'!')
+		call s:Echo('Warning', 'JSHint found '.(l:length == 1 ? '1 error' : l:length.' errors').'.'.l:ignored.
+			\ substitute(matchstr(matchstr(l:matrix[-1].text, ' (\d\+% scanned)'), '\d\+'), '\d\+',
+				\ ' About &% of file scanned.', ''))
 
 		" open location list if there is no bang
 		if a:show
-			belowright lopen
+			execute 'belowright lopen '.g:jshint2_height
 		endif
 	else
-		call s:Echo('More', 'JSHint not found any errors!')
+		call s:Echo('More', 'JSHint did not find any errors.'.l:ignored)
 
 		" close old location list
 		lclose
@@ -297,6 +312,9 @@ function s:Map()
 		for l:item in g:jshint2_shortcuts
 			execute 'nnoremap <silent><buffer>'.l:item.key.' '.l:item.exec
 		endfor
+
+		" save buffer associated with error list
+		let b:jshint2_buffer = l:errors[0].bufnr
 	endif
 endfunction
 
@@ -322,18 +340,23 @@ function s:Ignore()
 endfunction
 
 " command function
-command! -nargs=* -complete=customlist,s:Complete -range=% -bang JSHint call s:Lint(<line1>, <line2>, <bang>1, <f-args>)
+command! -nargs=* -complete=customlist,s:Complete -range=% -bang JSHint call s:Lint(<line1>, <line2>, <bang>1, [<f-args>])
 
 " automatic commands group
 augroup jshint2
 	" lint files after reading
 	if g:jshint2_read
-		autocmd BufReadPost * if &filetype == 'javascript' | silent JSHint | endif
+		autocmd BufReadPost * if &filetype == 'javascript' | silent execute 'JSHint' | endif
 	endif
 
 	" lint files after saving
 	if g:jshint2_save
-		autocmd BufWritePost * if &filetype == 'javascript' | silent JSHint | endif
+		autocmd BufWritePost * if &filetype == 'javascript' | silent execute 'JSHint' | endif
+	endif
+
+	" close orphaned error lists
+	if g:jshint2_close
+		autocmd BufEnter * if exists('b:jshint2_buffer') && bufwinnr(b:jshint2_buffer) == -1 | quit | endif
 	endif
 
 	" map commands for error list
