@@ -19,16 +19,6 @@ if !exists('g:jshint2_command')
 	let g:jshint2_command = 'jshint'
 endif
 
-" define shell command arguments
-if !exists('g:jshint2_arguments')
-	let g:jshint2_arguments = '--reporter='.shellescape(expand('<sfile>:p:h').'/jshint2.js')
-endif
-
-" define config file name
-if !exists('g:jshint2_config')
-	let g:jshint2_config = '.jshintrc'
-endif
-
 " define lint after reading variable
 if !exists('g:jshint2_read')
 	let g:jshint2_read = 0
@@ -64,134 +54,44 @@ if !exists('g:jshint2_height')
 	let g:jshint2_height = 10
 endif
 
-" define completion dictionary
-if !exists('g:jshint2_completion')
-	let g:jshint2_completion = {
-		\ 'asi': ['true', 'false'],
-		\ 'bitwise': ['true', 'false'],
-		\ 'boss': ['true', 'false'],
-		\ 'browser': ['true', 'false'],
-		\ 'camelcase': ['true', 'false'],
-		\ 'couch': ['true', 'false'],
-		\ 'curly': ['true', 'false'],
-		\ 'debug': ['true', 'false'],
-		\ 'devel': ['true', 'false'],
-		\ 'dojo': ['true', 'false'],
-		\ 'eqeqeq': ['true', 'false'],
-		\ 'eqnull': ['true', 'false'],
-		\ 'es3': ['true', 'false'],
-		\ 'es5': ['true', 'false'],
-		\ 'esnext': ['true', 'false'],
-		\ 'evil': ['true', 'false'],
-		\ 'expr': ['true', 'false'],
-		\ 'forin': ['true', 'false'],
-		\ 'funcscope': ['true', 'false'],
-		\ 'gcl': ['true', 'false'],
-		\ 'globalstrict': ['true', 'false'],
-		\ 'immed': ['true', 'false'],
-		\ 'indent': [2, 4, 8, 'false'],
-		\ 'iterator': ['true', 'false'],
-		\ 'jquery': ['true', 'false'],
-		\ 'lastsemic': ['true', 'false'],
-		\ 'latedef': ['nofunc', 'true', 'false'],
-		\ 'laxbreak': ['true', 'false'],
-		\ 'laxcomma': ['true', 'false'],
-		\ 'loopfunc': ['true', 'false'],
-		\ 'maxcomplexity': [4, 6, 8, 'false'],
-		\ 'maxdepth': [4, 6, 8, 'false'],
-		\ 'maxerr': [25, 50, 100, 'false'],
-		\ 'maxlen': [64, 128, 256, 512, 'false'],
-		\ 'maxparams': [4, 6, 8, 'false'],
-		\ 'maxstatements': [4, 6, 8, 'false'],
-		\ 'mootools': ['true', 'false'],
-		\ 'moz': ['true', 'false'],
-		\ 'multistr': ['true', 'false'],
-		\ 'newcap': ['true', 'false'],
-		\ 'noarg': ['true', 'false'],
-		\ 'node': ['true', 'false'],
-		\ 'noempty': ['true', 'false'],
-		\ 'nomen': ['true', 'false'],
-		\ 'nonew': ['true', 'false'],
-		\ 'nonstandard': ['true', 'false'],
-		\ 'onecase': ['true', 'false'],
-		\ 'onevar': ['true', 'false'],
-		\ 'passfail': ['true', 'false'],
-		\ 'phantom': ['true', 'false'],
-		\ 'plusplus': ['true', 'false'],
-		\ 'proto': ['true', 'false'],
-		\ 'prototypejs': ['true', 'false'],
-		\ 'quotmark': ['single', 'double', 'true', 'false'],
-		\ 'regexdash': ['true', 'false'],
-		\ 'regexp': ['true', 'false'],
-		\ 'rhino': ['true', 'false'],
-		\ 'scripturl': ['true', 'false'],
-		\ 'shadow': ['true', 'false'],
-		\ 'shelljs': ['true', 'false'],
-		\ 'smarttabs': ['true', 'false'],
-		\ 'strict': ['true', 'false'],
-		\ 'sub': ['true', 'false'],
-		\ 'supernew': ['true', 'false'],
-		\ 'trailing': ['true', 'false'],
-		\ 'typed': ['true', 'false'],
-		\ 'undef': ['true', 'false'],
-		\ 'unused': ['vars', 'strict', 'true', 'false'],
-		\ 'validthis': ['true', 'false'],
-		\ 'white': ['true', 'false'],
-		\ 'withstmt': ['true', 'false'],
-		\ 'worker': ['true', 'false'],
-		\ 'wsh': ['true', 'false'],
-		\ 'yui': ['true', 'false']
-	\ }
-endif
+" define local binary path
+let s:local = 'node_modules/.bin/jshint'
 
-" define error list shortcuts
-if !exists('g:jshint2_shortcuts')
-	let g:jshint2_shortcuts = [
-		\ {'key': 't', 'info': 'open error in new tab', 'exec': '<C-W><CR><C-W>T:belowright lopen<CR><C-W>p'},
-		\ {'key': 's', 'info': 'open error in new split', 'exec': '<C-W><CR><C-W>='},
-		\ {'key': 'v', 'info': 'open error in new vertical split', 'exec': '<C-W><CR><C-W>L'},
-		\ {'key': 'i', 'info': 'ignore selected error', 'exec': ':call <SID>Ignore()<CR>'},
-		\ {'key': 'n', 'info': 'scroll to selected error', 'exec': '<CR><C-W>p'},
-		\ {'key': 'q', 'info': 'close error list', 'exec': ':lclose<CR>'},
-		\ {'key': '?', 'info': 'show help', 'exec': ':redraw<CR>:echo ''Shortcuts:''."\n".
-			\ join(map(copy(g:jshint2_shortcuts), ''v:val.key." → ".v:val.info''), "\n")<CR>'}
-	\ ]
-endif
+" define config file name
+let s:config = '.jshintrc'
 
-" lint command constructor
-function s:Command()
-	" save current file path
-	let l:path = expand('%:p:h')
+" define shell command arguments
+let s:arguments = '--reporter='.shellescape(expand('<sfile>:p:h').'/jshint2.js')
 
-	" try to find config file
+" find needle file upper in root path
+function s:Find(root, needle)
+	" save root path
+	let l:root = a:root
+
+	" try to find needle file
 	while 1
-		" save posible config file path
-		let l:config = l:path.'/'.g:jshint2_config
+		" save possible needle path
+		let l:candidate = l:root.'/'.a:needle
 
-		" check if config file exists
-		let l:found = filereadable(l:config)
-		if l:found
-			break
+		" check if needle file exists
+		if filereadable(l:candidate)
+			return l:candidate
 		endif
 
-		" save parent path
-		let l:parent = fnamemodify(l:path, ':h')
+		" save head path
+		let l:head = fnamemodify(l:root, ':h')
 
 		" check if we reach root
-		if l:path == l:parent
-			break
+		if l:root == l:head
+			return ''
 		endif
 
-		" save new file path
-		let l:path = l:parent
+		" save new root path
+		let l:root = l:head
 	endwhile
-
-	" return full shell command
-	return g:jshint2_command.(l:found ? ' --config='.shellescape(l:config) : '').' '.g:jshint2_arguments.
-		\ ' '.(has('win32') || has('win64') ? '-' : '/dev/stdin') " https://github.com/Shutnik/jshint2.vim/issues/8
 endfunction
 
-" colorised output
+" colorized output
 function s:Echo(type, message)
 	" set color
 	if g:jshint2_color
@@ -207,46 +107,81 @@ function s:Echo(type, message)
 	endif
 endfunction
 
+" trim and clean string
+function s:Trim(str)
+	return substitute(substitute(a:str, '[\n\r]\|\s\{2,\}', ' ', 'g'), '^\s\+\|\s\+$', '', 'g')
+endfunction
+
 " lint command
 function s:Lint(start, stop, show, flags)
-	" filter error list and confirm no javascript buffers
-	if &buftype == 'quickfix' || g:jshint2_confirm && !exists('b:jshint2_flags') && &filetype != 'javascript' &&
-			\ confirm('Current file is not JavaScript, lint it anyway?', '&Yes'."\n".'&No', 1, 'Question') != 1
+	" filter third party quickfix and help buffers
+	if &buftype == 'quickfix' && !exists('b:jshint2_buffer') || &buftype == 'help'
 		return
 	endif
 
-	" clear previous output
-	redraw
+	" save buffer number
+	let l:buffer = exists('b:jshint2_buffer') ? b:jshint2_buffer : bufnr('%')
 
-	" check if shell binary installed
-	if !executable(g:jshint2_command)
-		return s:Echo('Error', 'JSHint is not executable, check if “'.g:jshint2_command.'” callable from your terminal.')
+	" save buffer lines
+	let l:lines = getbufline(l:buffer, a:start, a:stop)
+
+	" save buffer hashbang flag
+	let l:hashbang = l:lines[0] == '#!/usr/bin/env node'
+
+	" confirm non javascript buffers
+	if g:jshint2_confirm && &filetype != 'javascript' && !l:hashbang &&
+			\ !exists('b:jshint2_flags') && !exists('b:jshint2_buffer')
+		if confirm('Current file is not JavaScript, lint it anyway?', '&Yes'."\n".'&No', 1, 'Question') == 1
+			redraw
+		else
+			return
+		endif
 	endif
 
+	" get current file path
+	let l:path = expand('%:p:h')
+
+	" get local binary
+	let l:local = s:Find(l:path, s:local)
+
+	" save binary path
+	let l:binary = len(l:local) ? l:local : g:jshint2_command
+
+	" check if shell binary installed
+	if !executable(l:binary)
+		call s:Echo('Error', 'JSHint is not executable, check if “'.s:Trim(l:binary).'” callable from your terminal.')
+
+		return
+	endif
+
+	" get config path
+	let l:config = s:Find(l:path, s:config)
+
+	" save full shell command
+	let l:command = shellescape(l:binary).
+		\ (len(l:config) ? ' --config='.shellescape(l:config) : '').' '.s:arguments.
+			\ ' '.(has('win32') || has('win64') ? '-' : '/dev/stdin') " https://github.com/Shutnik/jshint2.vim/issues/8
+
 	" save command flags
-	let b:jshint2_flags = a:flags
+	call setbufvar(l:buffer, 'jshint2_flags', a:flags)
 
 	" save jshint flags
 	let l:flags = len(a:flags) ? '//jshint '.join(a:flags, ', ') : ''
 
-	" save whole file or selected lines
-	let l:content = insert(getline(a:start, a:stop), l:flags)
-
-	" ignore first shebang line
-	if l:content[1][:1] == '#!'
-		let l:content[1] = ''
+	" ignore first hashbang line
+	if l:hashbang
+		let l:lines[0] = ''
 	endif
 
 	" run shell linting command
-	let l:report = system(s:Command(), join(l:content, "\n"))
+	let l:report = system(l:command, join(insert(l:lines, l:flags), "\n"))
 
 	" check for shell errors
 	if v:shell_error
-		return s:Echo('Error', 'JSHint returns shell error “'.substitute(l:report, '[\s\n\r]\+$', '', '').'”.')
-	endif
+		call s:Echo('Error', 'JSHint returns shell error “'.s:Trim(l:report).'”.')
 
-	" save buffer number
-	let l:buffer = bufnr('%')
+		return
+	endif
 
 	" convert shell output into data matrix
 	let l:matrix = map(map(split(l:report, "\n"), 'split(v:val, "\t")'),
@@ -258,6 +193,9 @@ function s:Lint(start, stop, show, flags)
 
 	" save ignored errors message
 	let l:ignored = len(filter(copy(a:flags), 'v:val =~ ''^-[EWI][0-9]\{3\}$''')) ? ' Some messages are ignored.' : ''
+
+	" close and/or override height of old location list
+	lclose
 
 	" save total number of errors
 	let l:length = len(l:matrix)
@@ -272,11 +210,86 @@ function s:Lint(start, stop, show, flags)
 		endif
 	else
 		call s:Echo('More', 'JSHint did not find any errors.'.l:ignored)
-
-		" close old location list
-		lclose
 	endif
 endfunction
+
+" define completion dictionary
+let s:completion = {
+	\ 'asi': ['true', 'false'],
+	\ 'bitwise': ['true', 'false'],
+	\ 'boss': ['true', 'false'],
+	\ 'browser': ['true', 'false'],
+	\ 'camelcase': ['true', 'false'],
+	\ 'couch': ['true', 'false'],
+	\ 'curly': ['true', 'false'],
+	\ 'debug': ['true', 'false'],
+	\ 'devel': ['true', 'false'],
+	\ 'dojo': ['true', 'false'],
+	\ 'eqeqeq': ['true', 'false'],
+	\ 'eqnull': ['true', 'false'],
+	\ 'es3': ['true', 'false'],
+	\ 'es5': ['true', 'false'],
+	\ 'esnext': ['true', 'false'],
+	\ 'evil': ['true', 'false'],
+	\ 'expr': ['true', 'false'],
+	\ 'forin': ['true', 'false'],
+	\ 'funcscope': ['true', 'false'],
+	\ 'gcl': ['true', 'false'],
+	\ 'globalstrict': ['true', 'false'],
+	\ 'immed': ['true', 'false'],
+	\ 'indent': [2, 4, 8, 'false'],
+	\ 'iterator': ['true', 'false'],
+	\ 'jquery': ['true', 'false'],
+	\ 'lastsemic': ['true', 'false'],
+	\ 'latedef': ['nofunc', 'true', 'false'],
+	\ 'laxbreak': ['true', 'false'],
+	\ 'laxcomma': ['true', 'false'],
+	\ 'loopfunc': ['true', 'false'],
+	\ 'maxcomplexity': [4, 6, 8, 'false'],
+	\ 'maxdepth': [4, 6, 8, 'false'],
+	\ 'maxerr': [25, 50, 100, 'false'],
+	\ 'maxlen': [64, 128, 256, 512, 'false'],
+	\ 'maxparams': [4, 6, 8, 'false'],
+	\ 'maxstatements': [4, 6, 8, 'false'],
+	\ 'mootools': ['true', 'false'],
+	\ 'moz': ['true', 'false'],
+	\ 'multistr': ['true', 'false'],
+	\ 'newcap': ['true', 'false'],
+	\ 'noarg': ['true', 'false'],
+	\ 'node': ['true', 'false'],
+	\ 'noempty': ['true', 'false'],
+	\ 'nomen': ['true', 'false'],
+	\ 'nonew': ['true', 'false'],
+	\ 'nonstandard': ['true', 'false'],
+	\ 'onecase': ['true', 'false'],
+	\ 'onevar': ['true', 'false'],
+	\ 'passfail': ['true', 'false'],
+	\ 'phantom': ['true', 'false'],
+	\ 'plusplus': ['true', 'false'],
+	\ 'proto': ['true', 'false'],
+	\ 'prototypejs': ['true', 'false'],
+	\ 'quotmark': ['single', 'double', 'true', 'false'],
+	\ 'regexdash': ['true', 'false'],
+	\ 'regexp': ['true', 'false'],
+	\ 'rhino': ['true', 'false'],
+	\ 'scripturl': ['true', 'false'],
+	\ 'shadow': ['true', 'false'],
+	\ 'shelljs': ['true', 'false'],
+	\ 'smarttabs': ['true', 'false'],
+	\ 'strict': ['true', 'false'],
+	\ 'sub': ['true', 'false'],
+	\ 'supernew': ['true', 'false'],
+	\ 'trailing': ['true', 'false'],
+	\ 'typed': ['true', 'false'],
+	\ 'undef': ['true', 'false'],
+	\ 'unused': ['vars', 'strict', 'true', 'false'],
+	\ 'validthis': ['true', 'false'],
+	\ 'white': ['true', 'false'],
+	\ 'withstmt': ['true', 'false'],
+	\ 'worker': ['true', 'false'],
+	\ 'wsh': ['true', 'false'],
+	\ 'yui': ['true', 'false']
+\ }
 
 " command completion
 function s:Complete(arg, cmd, ...)
@@ -289,7 +302,7 @@ function s:Complete(arg, cmd, ...)
 		let l:flags = map(filter(split(a:cmd, '\s\+'), 'stridx(v:val, '':'') > -1'), 'v:val[: stridx(v:val, '':'') - 1]')
 
 		" filter complete flags
-		return filter(keys(g:jshint2_completion), 'index(l:flags, v:val) == -1 && v:val =~ ''^''.a:arg[: -1]')
+		return filter(keys(s:completion), 'index(l:flags, v:val) == -1 && v:val =~ ''^''.a:arg[: -1]')
 	endif
 
 	" save flag and value
@@ -297,25 +310,54 @@ function s:Complete(arg, cmd, ...)
 	let l:value = a:arg[l:colon + 1 :]
 
 	" filter complete flag values
-	return has_key(g:jshint2_completion, l:flag) ?
-		\ sort(map(filter(copy(g:jshint2_completion[l:flag]), 'v:val =~ ''^''.l:value'), 'l:flag.'':''.v:val')) : []
+	return has_key(s:completion, l:flag) ?
+		\ sort(map(filter(copy(s:completion[l:flag]), 'v:val =~ ''^''.l:value'), 'l:flag.'':''.v:val')) : []
 endfunction
+
+" define error list shortcuts
+let s:shortcuts = {
+	\ 't': '<C-W><CR><C-W>T',
+	\ 'T': '<C-W><CR><C-W>T:lopen<CR><C-W>p',
+	\ 'v': '<C-W><CR><C-W>L<C-W>=',
+	\ 'V': '<C-W><CR><C-W>L:lopen<CR><C-W>p<C-W>=',
+	\ 's': '<C-W><CR><C-W>=',
+	\ 'S': '<C-W><CR>:lopen<CR><C-W>p<C-W>=',
+	\ 'i': ':call <SID>Ignore()<CR>',
+	\ 'n': '<CR><C-W>p',
+	\ 'q': ':lclose<CR>'
+\ }
 
 " location list mapper
 function s:Map()
 	" get errors list
 	let l:errors = getloclist(0)
 
-	" check mapping necessity
-	if len(l:errors) && type(getbufvar(l:errors[0].bufnr, 'jshint2_flags')) == type([])
-		" map shortcuts
-		for l:item in g:jshint2_shortcuts
-			execute 'nnoremap <silent><buffer>'.l:item.key.' '.l:item.exec
-		endfor
-
-		" save buffer associated with error list
-		let b:jshint2_buffer = l:errors[0].bufnr
+	" check errors length
+	if !len(l:errors)
+		return
 	endif
+
+	" get lint flags
+	let l:flags = getbufvar(l:errors[0].bufnr, 'jshint2_flags')
+
+	" check mapping necessity
+	if type(l:flags) != type([])
+		return
+	endif
+
+	" set buffer status line
+	execute 'setlocal statusline=[JSHint\ Error\ List]\ '.join(l:flags, '\ ')
+
+	" hide buffer from buffers list
+	setlocal nobuflisted
+
+	" map shortcuts
+	for l:key in keys(s:shortcuts)
+		execute 'nnoremap <silent><buffer>'.l:key.' '.s:shortcuts[l:key]
+	endfor
+
+	" save buffer associated with error list
+	let b:jshint2_buffer = l:errors[0].bufnr
 endfunction
 
 " revalidate ignoring selected error
@@ -324,19 +366,27 @@ function s:Ignore()
 	let l:line = getloclist(0)[line('.') - 1]
 
 	" get error number
-	let l:number = l:line['nr']
+	let l:number = l:line.nr
 
 	" check if showing error number not disabled
-	if l:number
-		" switch to linting buffer
-		execute bufwinnr(l:line['bufnr']).'wincmd w'
-
-		" get new error
-		let l:error = '-'.l:line['type'].(('00'.l:number)[-3:])
-
-		" revalidate buffer
-		execute ':JSHint '.join(b:jshint2_flags).' '.l:error
+	if !l:number
+		return
 	endif
+
+	" switch to linting buffer
+	execute bufwinnr(l:line.bufnr).'wincmd w'
+
+	" get new error
+	let l:error = '-'.l:line.type.(('00'.l:number)[-3 :])
+
+	" save ignore command
+	let l:ignore = 'JSHint '.join(b:jshint2_flags).' '.l:error
+
+	" push ignore command into history
+	call histadd(':', l:ignore)
+
+	" revalidate buffer
+	execute l:ignore
 endfunction
 
 " command function
@@ -345,19 +395,22 @@ command! -nargs=* -complete=customlist,s:Complete -range=% -bang JSHint call s:L
 " automatic commands group
 augroup jshint2
 	" lint files after reading
-	if g:jshint2_read
-		autocmd BufReadPost * if &filetype == 'javascript' | silent execute 'JSHint' | endif
-	endif
+	autocmd BufReadPost *
+		\ if g:jshint2_read && &filetype == 'javascript' |
+			\ silent execute 'JSHint' |
+		\ endif
 
 	" lint files after saving
-	if g:jshint2_save
-		autocmd BufWritePost * if &filetype == 'javascript' | silent execute 'JSHint' | endif
-	endif
+	autocmd BufWritePost *
+		\ if g:jshint2_save && &filetype == 'javascript' |
+			\ silent execute 'JSHint' |
+		\ endif
 
 	" close orphaned error lists
-	if g:jshint2_close
-		autocmd BufEnter * if exists('b:jshint2_buffer') && bufwinnr(b:jshint2_buffer) == -1 | quit | endif
-	endif
+	autocmd BufEnter *
+		\ if g:jshint2_close && exists('b:jshint2_buffer') && bufwinnr(b:jshint2_buffer) == -1 |
+			\ quit |
+		\ endif
 
 	" map commands for error list
 	autocmd FileType qf call s:Map()
